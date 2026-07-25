@@ -28,3 +28,122 @@ html, body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
 }
+
+/* ============================================================
+   THORNWOOD LEDGER — DESIGN TOKENS
+   ============================================================ */
+
+:root {
+  /* Colour tokens — OKLCH */
+  --color-bg:        oklch(94.2% 0.014 80.3);   /* Parchment #F4EFE6 */
+  --color-text:      oklch(14.1% 0.008 62.4);   /* Ledger Ink #1C1A17 */
+  --color-muted:     oklch(38.5% 0.024 131.2);  /* Field Slate #4A5240 */
+  --color-accent:    oklch(58.3% 0.118 74.8);   /* Settlement Amber #B8860B */
+  --color-accent-ink: oklch(14.1% 0.008 62.4);  /* Ledger Ink on Amber fill */
+  --color-border:    oklch(84.1% 0.011 76.5);   /* Ruled Line #D9D2C5 */
+  --color-verified:  oklch(40.2% 0.058 145.3);  /* Verified Green #3A6B3A */
+  --color-surface-dark: oklch(14.1% 0.008 62.4); /* Ledger Ink — dark section bg */
+  --color-paper:     oklch(94.2% 0.014 80.3);   /* Parchment — text on dark bg */
+  --color-focus:     oklch(58.3% 0.118 74.8);   /* Settlement Amber — focus ring */
+
+  /* Typography tokens */
+  --font-display: 'Tiempos Headline', 'Instrument Serif', Georgia, serif;
+  --font-body:    'Sohne', 'Geist Sans', system-ui, sans-serif;
+  --font-mono:    'Sohne Mono', 'Geist Mono', 'Courier New', monospace;
+
+  /* Type scale */
+  --text-xs:      12px;
+  --text-sm:      13px;
+  --text-base:    16px;
+  --text-lg:      18px;
+  --text-2xl:     24px;
+  --text-3xl:     28px;
+  --text-4xl:     36px;
+  --text-5xl:     48px;
+  --text-display: 52px;
+
+  /* Spacing scale (8px grid) */
+  --space-1:  8px;
+  --space-2:  16px;
+  --space-3:  24px;
+  --space-4:  32px;
+  --space-6:  48px;
+  --space-8:  64px;
+  --space-12: 96px;
+  --space-16: 128px;
+
+  /* Border radius — single system value */
+  --radius: 4px;
+
+  /* Motion easings */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:  cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* Base reset */
+html,
+body {
+  overflow-x: clip; /* NOT hidden — preserves position: sticky */
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Focus ring system — applies to all interactive elements */
+*:focus {
+  outline: 2px solid transparent;
+  outline-offset: 1px;
+}
+*:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Display heading base */
+.heading-display {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+/* Section heading */
+.heading-section {
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+}
+
+/* Small label / meta text */
+.label-mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+/* Ruled divider */
+.ruled-line {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 0;
+}
