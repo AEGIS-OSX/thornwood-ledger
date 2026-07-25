@@ -2,14 +2,6 @@
 // NO "use client" — this is an async Server Component
 import { HeroMotion, HeroHeadlineMotion, HeroCountMotion, HeroCtaMotion } from "./HeroMotion";
 
-interface StringMap {
-  [key: string]: string;
-}
-
-interface CountResponse {
-  count: unknown;
-}
-
 async function Hero() {
   // ── CRITERION 1: Build-time fetch ──────────────────────────────────────
   // [SEC TARGET: app/components/Hero.tsx (build-time fetch)]
@@ -18,7 +10,7 @@ async function Hero() {
   let count: number;
 
   try {
-    const headers: StringMap = {
+    const headers: { [key: string]: string } = {
       "Accept": "application/json",
     };
     if (process.env.THORNWOOD_API_KEY) {
@@ -48,18 +40,12 @@ async function Hero() {
       typeof raw === "object" &&
       raw !== null &&
       !Array.isArray(raw) &&
-      "count" in raw
+      "count" in raw &&
+      typeof (raw as { [key: string]: unknown }).count === "number" &&
+      Number.isFinite((raw as { [key: string]: unknown }).count as number)
     ) {
-      const rawObj = raw as CountResponse;
-      if (typeof rawObj.count === "number" && Number.isFinite(rawObj.count)) {
-        // Only the aggregate field — never expose per-record data
-        count = Math.floor(rawObj.count);
-      } else {
-        throw new Error(
-          "Criterion 1 FAIL: API response is not a scalar number or {count: number}. " +
-          "Per-record or structured data must not be rendered."
-        );
-      }
+      // Only the aggregate field — never expose per-record data
+      count = Math.floor((raw as { [key: string]: unknown }).count as number);
     } else {
       throw new Error(
         "Criterion 1 FAIL: API response is not a scalar number or {count: number}. " +
