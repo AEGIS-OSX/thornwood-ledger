@@ -1,37 +1,37 @@
 {
   "logo": {
-    "url": "",
-    "alt": "",
+    "url": "https://zkvkbpxrxnfynqqeytke.supabase.co/storage/v1/object/public/marketing-assets/thornwood-ledger/cleo/1785020428796-logo.png",
+    "alt": "A minimalist, flat vector logo mark for Thornwood Ledger. It features a geometric grain-inspired icon and high-contrast serif typography in Ledger Ink #1C1A17 against a solid Parchment #F4EFE6 backgro",
     "width": 1024,
     "height": 1024
   },
   "hero": {
-    "url": "",
-    "alt": "",
+    "url": "https://zkvkbpxrxnfynqqeytke.supabase.co/storage/v1/object/public/marketing-assets/thornwood-ledger/cleo/1785020319318-hero.png",
+    "alt": "A quiet, institutional hero visual featuring a manila folder and settlement statement on a worn oak desk, lit by cool October morning light. It establishes the 'county co-op' mood and adheres to the P",
     "width": 1920,
     "height": 1080
   },
   "feature_1": {
-    "url": "",
-    "alt": "",
+    "url": "https://zkvkbpxrxnfynqqeytke.supabase.co/storage/v1/object/public/marketing-assets/thornwood-ledger/cleo/1785020312582-feature_1.png",
+    "alt": "A tactile, high-fidelity shot of printed settlement statements on a worn oak desk, capturing the institutional and agricultural mood of the Thornwood Ledger brand. The image emphasizes the parchment p",
     "width": 800,
     "height": 600
   },
   "feature_2": {
-    "url": "",
-    "alt": "",
+    "url": "https://zkvkbpxrxnfynqqeytke.supabase.co/storage/v1/object/public/marketing-assets/thornwood-ledger/cleo/1785020315342-feature_2.png",
+    "alt": "A tactile, institutional shot of a grain settlement statement in a manila folder, emphasizing the 'Grade Arbitration' capability through sharp focus and a utilitarian, agricultural office aesthetic.",
     "width": 800,
     "height": 600
   },
   "feature_3": {
-    "url": "",
-    "alt": "",
+    "url": "https://zkvkbpxrxnfynqqeytke.supabase.co/storage/v1/object/public/marketing-assets/thornwood-ledger/cleo/1785020312183-feature_3.png",
+    "alt": "A macro shot of a verified settlement statement on parchment paper with a goldenrod approval stamp, emphasizing the finality and institutional authority of the Settlement Statements feature.",
     "width": 800,
     "height": 600
   },
   "social_proof": {
-    "url": "",
-    "alt": "",
+    "url": "https://zkvkbpxrxnfynqqeytke.supabase.co/storage/v1/object/public/marketing-assets/thornwood-ledger/cleo/1785020543716-social_proof.png",
+    "alt": "A still life of a manila folder and coffee mug on a worn oak desk, overlooking a harvested wheat field. This image anchors the social proof section by grounding the software in the physical, instituti",
     "width": 1200,
     "height": 800
   }
