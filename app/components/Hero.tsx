@@ -32,7 +32,7 @@ export default async function Hero() {
         </div>
 
         <div className="hero-count-box">
-          <span className="hero-count-number">
+          <span className="hero-count-number" data-testid="verified-count">
             {countDisplay}
           </span>
           <span className="hero-count-label">
