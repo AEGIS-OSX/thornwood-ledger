@@ -305,7 +305,18 @@ body {
     padding-inline: var(--space-3);
   }
   .hero-headline {
+    font-size: var(--text-4xl); /* 36px — matches spec */
+    max-width: 100%;
+  }
+  .hero-count-number {
     font-size: var(--text-3xl);
+  }
+  .hero-section {
+    overflow: visible;
+    min-height: auto;
+  }
+  .hero-inner {
+    overflow: visible;
   }
 }
 
