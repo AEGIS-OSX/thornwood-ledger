@@ -5,7 +5,7 @@ import SocialProof from "@/app/components/SocialProof";
 import WalkthroughCTA from "@/app/components/WalkthroughCTA";
 import Footer from "@/app/components/Footer";
 
-export default function Page() {
+export default function Home() {
   return (
     <>
       <Nav />
