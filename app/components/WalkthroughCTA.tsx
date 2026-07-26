@@ -1,197 +1,257 @@
 "use client";
-import { useState, type FormEvent } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 
-type FormState = "idle" | "loading" | "success" | "error";
+import { useState } from "react";
+import { motion } from "framer-motion";
 
 export default function WalkthroughCTA() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [formState, setFormState] = useState<FormState>("idle");
-  const [name, setName] = useState("");
-  const [coopName, setCoopName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    coopName: "",
+    email: "",
+    phone: "",
+  });
+  const [formState, setFormState] = useState<
+    "idle" | "submitting" | "success" | "error"
+  >("idle");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [errorMessage, setErrorMessage] = useState("");
 
-  async function handleSubmit(e: FormEvent) {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      delete next[e.target.name];
+      return next;
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormState("loading");
-
-    // IDOR-001: No user-controlled IDs in payload. Server assigns all record identifiers.
-    const payload = { name, coopName, email, phone };
+    setFormState("submitting");
+    setFieldErrors({});
+    setErrorMessage("");
 
     try {
       const res = await fetch("/api/booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(formData),
       });
-      if (res.ok) {
+
+      if (res.status === 201) {
         setFormState("success");
-      } else {
-        setFormState("error");
+        setFormData({ name: "", coopName: "", email: "", phone: "" });
+        return;
       }
+
+      if (res.status === 422) {
+        const data = await res.json().catch(() => ({}));
+        if (data.errors && typeof data.errors === "object") {
+          setFieldErrors(data.errors);
+        } else {
+          setErrorMessage("Please check your input and try again.");
+        }
+        setFormState("error");
+        return;
+      }
+
+      if (res.status === 429) {
+        const data = await res.json().catch(() => ({}));
+        const retry = data.retryAfter ?? 60;
+        setErrorMessage(
+          `Too many requests. Please wait ${retry} second${retry === 1 ? "" : "s"} and try again.`
+        );
+        setFormState("error");
+        return;
+      }
+
+      setErrorMessage("Something went wrong. Please try again later.");
+      setFormState("error");
     } catch {
+      setErrorMessage("Network error. Please check your connection and try again.");
       setFormState("error");
     }
-  }
-
-  const isDisabled = formState === "loading" || formState === "success";
+  };
 
   return (
-    <motion.section
-      id="walkthrough"
-      className="cta-section"
-      initial={{ opacity: 0, y: 32 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-    >
-      <div className="cta-inner">
-        <h2 className="cta-headline heading-display">
-          Ready for a more efficient harvest?
-        </h2>
-        <p className="cta-pricing">
-          Flat-rate annual licensing. No per-bushel fees or hidden member costs.
-        </p>
-        <p className="cta-roles">
-          Purpose-built for co-op office staff, scale operators, and farmer-members.
-        </p>
-        <button
-          className="cta-button"
-          onClick={() => setIsOpen(true)}
-          type="button"
+    <section className="py-24 px-6 bg-stone-50">
+      <div className="max-w-2xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
         >
-          Book a Walkthrough
-        </button>
-      </div>
+          <h2 className="text-3xl md:text-4xl font-serif text-stone-900 mb-4">
+            Book a Walkthrough
+          </h2>
+          <p className="text-stone-600 text-lg">
+            See how Thornwood Ledger can streamline your co-op&apos;s finances.
+          </p>
+        </motion.div>
 
-      {/* Modal overlay */}
-      <AnimatePresence>
-        {isOpen && (
+        {formState === "success" ? (
           <motion.div
-            className="modal-overlay"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="modal-heading"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            onClick={(e) => { if (e.target === e.currentTarget) setIsOpen(false); }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-lg p-8 shadow-sm text-center"
           >
-            <motion.div
-              className="modal-panel"
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 24 }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <button
-                className="modal-close"
-                onClick={() => setIsOpen(false)}
-                aria-label="Close booking form"
-                type="button"
+            <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg
+                className="w-6 h-6 text-emerald-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                ×
-              </button>
-
-              {formState === "success" ? (
-                <div className="modal-success">
-                  <p className="modal-success-text">
-                    {`Request received. We'll be in touch within one business day.`}
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <h2 id="modal-heading" className="modal-heading heading-display">
-                    Request a Walkthrough
-                  </h2>
-                  <form className="modal-form" onSubmit={handleSubmit} noValidate>
-                    <div className="field-group">
-                      <label className="field-label" htmlFor="field-name">Name</label>
-                      <input
-                        id="field-name"
-                        className="field-input"
-                        type="text"
-                        required
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        disabled={isDisabled}
-                        aria-disabled={isDisabled}
-                        autoComplete="name"
-                      />
-                      <p className="field-helper" aria-live="polite" />
-                    </div>
-                    <div className="field-group">
-                      <label className="field-label" htmlFor="field-coop">Co-op Name</label>
-                      <input
-                        id="field-coop"
-                        className="field-input"
-                        type="text"
-                        required
-                        value={coopName}
-                        onChange={(e) => setCoopName(e.target.value)}
-                        disabled={isDisabled}
-                        aria-disabled={isDisabled}
-                        autoComplete="organization"
-                      />
-                      <p className="field-helper" aria-live="polite" />
-                    </div>
-                    <div className="field-group">
-                      <label className="field-label" htmlFor="field-email">Email</label>
-                      <input
-                        id="field-email"
-                        className="field-input"
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        disabled={isDisabled}
-                        aria-disabled={isDisabled}
-                        autoComplete="email"
-                      />
-                      <p className="field-helper" aria-live="polite" />
-                    </div>
-                    <div className="field-group">
-                      <label className="field-label" htmlFor="field-phone">
-                        Phone <span className="field-optional">(optional)</span>
-                      </label>
-                      <input
-                        id="field-phone"
-                        className="field-input"
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        disabled={isDisabled}
-                        aria-disabled={isDisabled}
-                        autoComplete="tel"
-                      />
-                      <p className="field-helper" aria-live="polite" />
-                    </div>
-                    {formState === "error" && (
-                      <p className="form-error" role="alert">
-                        Something went wrong. Please email{" "}
-                        <a href="mailto:support@thornwoodledger.com" className="form-error-link">
-                          support@thornwoodledger.com
-                        </a>{" "}
-                        directly.
-                      </p>
-                    )}
-                    <button
-                      className="submit-button"
-                      type="submit"
-                      disabled={isDisabled}
-                      aria-disabled={isDisabled}
-                    >
-                      {formState === "loading" ? "Sending..." : "Send Request"}
-                    </button>
-                  </form>
-                </>
-              )}
-            </motion.div>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+            <h3 className="text-xl font-serif text-stone-900 mb-2">
+              Request Received
+            </h3>
+            <p className="text-stone-600">
+              We&apos;ll be in touch within 24 hours to schedule your walkthrough.
+            </p>
           </motion.div>
+        ) : (
+          <motion.form
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            onSubmit={handleSubmit}
+            className="bg-white rounded-lg p-8 shadow-sm space-y-6"
+            noValidate
+          >
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-stone-700 mb-1"
+              >
+                Your Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                className={`w-full px-4 py-3 rounded-md border ${
+                  fieldErrors.name
+                    ? "border-red-400 focus:ring-red-200"
+                    : "border-stone-200 focus:ring-stone-200"
+                } focus:outline-none focus:ring-2 transition-colors`}
+                placeholder="Jane Doe"
+              />
+              {fieldErrors.name && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.name}</p>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="coopName"
+                className="block text-sm font-medium text-stone-700 mb-1"
+              >
+                Co-op Name
+              </label>
+              <input
+                type="text"
+                id="coopName"
+                name="coopName"
+                value={formData.coopName}
+                onChange={handleChange}
+                required
+                className={`w-full px-4 py-3 rounded-md border ${
+                  fieldErrors.coopName
+                    ? "border-red-400 focus:ring-red-200"
+                    : "border-stone-200 focus:ring-stone-200"
+                } focus:outline-none focus:ring-2 transition-colors`}
+                placeholder="Sunrise Housing Co-op"
+              />
+              {fieldErrors.coopName && (
+                <p className="mt-1 text-sm text-red-600">
+                  {fieldErrors.coopName}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-stone-700 mb-1"
+              >
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className={`w-full px-4 py-3 rounded-md border ${
+                  fieldErrors.email
+                    ? "border-red-400 focus:ring-red-200"
+                    : "border-stone-200 focus:ring-stone-200"
+                } focus:outline-none focus:ring-2 transition-colors`}
+                placeholder="jane@coop.org"
+              />
+              {fieldErrors.email && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.email}</p>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="phone"
+                className="block text-sm font-medium text-stone-700 mb-1"
+              >
+                Phone <span className="text-stone-400">(optional)</span>
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className={`w-full px-4 py-3 rounded-md border ${
+                  fieldErrors.phone
+                    ? "border-red-400 focus:ring-red-200"
+                    : "border-stone-200 focus:ring-stone-200"
+                } focus:outline-none focus:ring-2 transition-colors`}
+                placeholder="+1 (555) 123-4567"
+              />
+              {fieldErrors.phone && (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.phone}</p>
+              )}
+            </div>
+
+            {errorMessage && (
+              <div className="p-4 bg-red-50 rounded-md">
+                <p className="text-sm text-red-700">{errorMessage}</p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={formState === "submitting"}
+              className="w-full bg-stone-900 text-white py-3 px-6 rounded-md font-medium hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {formState === "submitting"
+                ? "Submitting..."
+                : "Request Walkthrough"}
+            </button>
+          </motion.form>
         )}
-      </AnimatePresence>
-    </motion.section>
+      </div>
+    </section>
   );
 }
