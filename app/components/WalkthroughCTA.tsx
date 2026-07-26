@@ -16,15 +16,20 @@ export default function WalkthroughCTA() {
     e.preventDefault();
     setFormState("loading");
 
-    // TODO: POST to /api/booking — must enforce rate limiting (max 5 req/min per IP) per AUTH-001
     // IDOR-001: No user-controlled IDs in payload. Server assigns all record identifiers.
     const payload = { name, coopName, email, phone };
 
     try {
-      // Stub: simulate network delay — move real fetch here so catch can fire
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      // Stub success — replace with real fetch when backend is ready
-      setFormState("success");
+      const res = await fetch("/api/booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        setFormState("success");
+      } else {
+        setFormState("error");
+      }
     } catch {
       setFormState("error");
     }
