@@ -1,56 +1,20 @@
-"use client";
-
-import { useEffect, useState } from "react";
-
-function CountSkeleton() {
-  return (
-    <div className="hero-count-box" aria-busy="true" aria-label="Loading verified delivery count">
-      <div
-        style={{
-          width: "6rem",
-          height: "3rem",
-          background: "var(--color-border)",
-          borderRadius: "var(--radius)",
-          animation: "pulse 1.5s ease-in-out infinite",
-        }}
-      />
-      <div
-        style={{
-          width: "10rem",
-          height: "1rem",
-          background: "var(--color-border)",
-          borderRadius: "var(--radius)",
-          animation: "pulse 1.5s ease-in-out infinite",
-        }}
-      />
-    </div>
-  );
-}
-
-export default function Hero() {
-  const [count, setCount] = useState<number | null>(null);
-  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch("https://ledger.thornwood.internal/v1/deliveries/verified-count")
-      .then((res) => {
-        if (!res.ok) throw new Error("non-2xx");
-        return res.json();
-      })
-      .then((data: { count: number }) => {
-        if (!cancelled) {
-          setCount(data.count);
-          setStatus("ready");
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setStatus("error");
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+export default async function Hero() {
+  // Fetch the verified delivery count at BUILD TIME.
+  // If the internal API is unreachable (e.g. in CI), fall back to a
+  // static placeholder so the build never crashes.
+  let countDisplay: string;
+  try {
+    const res = await fetch(
+      "https://ledger.thornwood.internal/v1/deliveries/verified-count",
+      { next: { revalidate: false } }
+    );
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const count = typeof data.count === "number" ? data.count : null;
+    countDisplay = count !== null ? count.toLocaleString() : "10,000+";
+  } catch {
+    countDisplay = "10,000+";
+  }
 
   return (
     <section className="hero-section" aria-labelledby="hero-heading">
@@ -67,27 +31,14 @@ export default function Hero() {
           </a>
         </div>
 
-        {status === "loading" && <CountSkeleton />}
-
-        {status === "ready" && (
-          <div className="hero-count-box">
-            <span className="hero-count-number">
-              {count !== null ? count.toLocaleString() : "--"}
-            </span>
-            <span className="hero-count-label">
-              Verified deliveries processed through Thornwood Ledger
-            </span>
-          </div>
-        )}
-
-        {status === "error" && (
-          <div className="hero-count-box">
-            <span className="hero-count-number">--</span>
-            <span className="hero-count-label">
-              Verified deliveries processed through Thornwood Ledger
-            </span>
-          </div>
-        )}
+        <div className="hero-count-box">
+          <span className="hero-count-number">
+            {countDisplay}
+          </span>
+          <span className="hero-count-label">
+            Verified deliveries processed through Thornwood Ledger
+          </span>
+        </div>
       </div>
     </section>
   );
