@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'thornwood-ledger',
-  description: 'AEGIS-generated project',
+  title: 'Thornwood Ledger',
+  description: 'Thornwood Ledger — chain-of-custody ledger for regional grain co-operatives. Faster settlement, transparent grade arbitration.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
