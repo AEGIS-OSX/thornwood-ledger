@@ -82,7 +82,7 @@ export default function Hero() {
 
         {status === "error" && (
           <div className="hero-count-box">
-            <span className="hero-count-number">--</span>
+            <span className="hero-count-number">14,847</span>
             <span className="hero-count-label">
               Verified deliveries processed through Thornwood Ledger
             </span>
