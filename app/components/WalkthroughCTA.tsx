@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 type FormState = "idle" | "loading" | "success" | "error";
@@ -12,17 +12,17 @@ export default function WalkthroughCTA() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setFormState("loading");
 
     // TODO: POST to /api/booking — must enforce rate limiting (max 5 req/min per IP) per AUTH-001
     // IDOR-001: No user-controlled IDs in payload. Server assigns all record identifiers.
     const payload = { name, coopName, email, phone };
-    // Stub: simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
 
     try {
+      // Stub: simulate network delay — move real fetch here so catch can fire
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       // Stub success — replace with real fetch when backend is ready
       setFormState("success");
     } catch {
