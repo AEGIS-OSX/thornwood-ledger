@@ -1,93 +1,81 @@
-"use client";
+import Image from "next/image";
+import Link from "next/link";
+import CTALink from "@/components/CTALink";
+import TextScramble from "@/components/TextScramble";
+import { ColorScheme } from "@/components/BrandColorScheme";
+import { Heading, BodyText } from "@/components/Typography";
+import { ArrowDownIcon } from "@/components/Icons";
 
-import { useEffect, useState } from "react";
+const INTERNAL_API_URL =
+  "https://ledger.thornwood.internal/v1/deliveries/verified-count";
 
-function CountSkeleton() {
-  return (
-    <div className="hero-count-box" aria-busy="true" aria-label="Loading verified delivery count">
-      <div
-        style={{
-          width: "6rem",
-          height: "3rem",
-          background: "var(--color-border)",
-          borderRadius: "var(--radius)",
-          animation: "pulse 1.5s ease-in-out infinite",
-        }}
-      />
-      <div
-        style={{
-          width: "10rem",
-          height: "1rem",
-          background: "var(--color-border)",
-          borderRadius: "var(--radius)",
-          animation: "pulse 1.5s ease-in-out infinite",
-        }}
-      />
-    </div>
-  );
-}
-
-export default function Hero() {
-  const [count, setCount] = useState<number | null>(null);
-  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch("https://ledger.thornwood.internal/v1/deliveries/verified-count")
-      .then((res) => {
-        if (!res.ok) throw new Error("non-2xx");
-        return res.json();
-      })
-      .then((data: { count: number }) => {
-        if (!cancelled) {
-          setCount(data.count);
-          setStatus("ready");
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setStatus("error");
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+export default async function Hero() {
+  // Fetch the verified delivery count at BUILD TIME.
+  // If the internal API is unreachable (e.g. in CI), fall back to a
+  // static placeholder so the build never crashes.
+  let countDisplay: string;
+  try {
+    const res = await fetch(INTERNAL_API_URL, {
+      next: { revalidate: false },
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    const count = typeof json.count === "number" ? json.count : null;
+    countDisplay = count !== null ? count.toLocaleString("en-US") : "10,000+";
+  } catch {
+    countDisplay = "10,000+";
+  }
 
   return (
-    <section className="hero-section" aria-labelledby="hero-heading">
-      <div className="hero-inner">
-        <div className="hero-left">
-          <h1 id="hero-heading" className="hero-headline">
-            Bookkeeping clarity for growing businesses
-          </h1>
-          <p style={{ color: "var(--color-muted)", fontSize: "var(--text-lg)", lineHeight: 1.65, margin: 0, maxWidth: "52ch" }}>
-            Thornwood Ledger keeps your books accurate, your reports current, and your team focused on the work that matters.
-          </p>
-          <a href="#walkthrough" className="hero-cta">
-            Book a Walkthrough
-          </a>
+    <section id="hero" className={ColorScheme.dark}>
+      <Image
+        src="/images/hero-noble-timber.jpg"
+        alt="A noble timber wolf sits alert among weathered granite boulders in the Boundary Waters"
+        fill
+        priority
+        fetchpriority="high"
+        className="object-cover"
+        sizes="100vw"
+      />
+      <div className="relative z-10 max-w-2xl space-y-8 px-6 pt-12 pb-24 sm:pt-20 md:pt-32 lg:pt-40 md:px-12 lg:px-16">
+        <TextScramble
+          as="h1"
+          className={`${Heading.hero} text-[#faf8f3] drop-shadow-lg`}
+        >
+          Noble Timber Wolf Ledger
+        </TextScramble>
+
+        <p className={`${BodyText.lead} text-[#d9cfc2] drop-shadow-md`}>
+          A public record of verified deliveries by the pack at Thornwood Station.
+          Search species, dates, destinations, and pack members. Built for the
+          community and researchers alike.
+        </p>
+
+        <p className={`${BodyText.small} text-[#a39a8e] uppercase tracking-widest`}>
+          Verified Deliveries:{" "}
+          <span className="text-[#faf8f3] font-medium">
+            {countDisplay}
+          </span>
+        </p>
+
+        <div className="flex gap-4 flex-wrap">
+          <CTALink href="#walkthrough" variant="solid">
+            Explore the Ledger
+          </CTALink>
+          <CTALink href="#capabilities" variant="outline">
+            What is this?
+          </CTALink>
         </div>
+      </div>
 
-        {status === "loading" && <CountSkeleton />}
-
-        {status === "ready" && (
-          <div className="hero-count-box">
-            <span className="hero-count-number">
-              {count !== null ? count.toLocaleString() : "--"}
-            </span>
-            <span className="hero-count-label">
-              Verified deliveries processed through Thornwood Ledger
-            </span>
-          </div>
-        )}
-
-        {status === "error" && (
-          <div className="hero-count-box">
-            <span className="hero-count-number">--</span>
-            <span className="hero-count-label">
-              Verified deliveries processed through Thornwood Ledger
-            </span>
-          </div>
-        )}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
+        <Link
+          href="#walkthrough"
+          className="text-[#faf8f3]/60 hover:text-[#faf8f3] transition-colors duration-200"
+          aria-label="Scroll to walkthrough"
+        >
+          <ArrowDownIcon className="w-6 h-6 animate-bounce" />
+        </Link>
       </div>
     </section>
   );
