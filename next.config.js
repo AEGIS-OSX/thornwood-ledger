@@ -23,20 +23,6 @@ const nextConfig = {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin',
           },
-          {
-            key: 'Content-Security-Policy',
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-inline'",
-              "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
-              "font-src fonts.gstatic.com",
-              "img-src 'self' zkvkbpxrxnfynqqeytke.supabase.co data:",
-              "connect-src 'self'",
-              "frame-ancestors 'none'",
-              "object-src 'none'",
-              "base-uri 'self'",
-            ].join('; '),
-          },
         ],
       },
     ];
