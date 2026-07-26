@@ -8,6 +8,10 @@ const nextConfig = {
         source: '/(.*)',
         headers: [
           {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' https://zkvkbpxrxnfynqqeytke.supabase.co data:; font-src 'self' https://fonts.gstatic.com; connect-src 'self'; frame-ancestors 'none'",
+          },
+          {
             key: 'Strict-Transport-Security',
             value: 'max-age=63072000; includeSubDomains; preload',
           },
