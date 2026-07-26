@@ -233,6 +233,14 @@ body {
   color: var(--color-text);
   max-width: 18ch;
 }
+.hero-sub {
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  line-height: 1.6;
+  color: var(--color-muted);
+  max-width: 45ch;
+  margin: 0;
+}
 .hero-cta {
   display: inline-block;
   background-color: var(--color-accent);
@@ -294,6 +302,9 @@ body {
     font-size: var(--text-4xl);
     line-height: 1.15;
   }
+  .hero-sub {
+    font-size: var(--text-base);
+  }
   .hero-count-number {
     font-size: var(--text-4xl);
   }
@@ -306,6 +317,9 @@ body {
   }
   .hero-headline {
     font-size: var(--text-3xl);
+  }
+  .hero-sub {
+    font-size: var(--text-sm);
   }
 }
 
