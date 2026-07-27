@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
   const limit = await rateLimit(ip);
   if (!limit.allowed) {
     return NextResponse.json(
-      { error: "Too many requests. Please try again shortly." },
+      { error: "Too many requests. Please try again shortly.", retryAfter: limit.retryAfter },
       { status: 429, headers: { "Retry-After": String(limit.retryAfter) } },
     );
   }
@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
 
   const result = validate(body);
   if (!result.ok) {
-    return NextResponse.json({ error: "Validation failed.", fields: result.errors }, { status: 422 });
+    return NextResponse.json({ error: "Validation failed.", errors: result.errors }, { status: 422 });
   }
 
   // Persistence: forward to Supabase REST if configured; otherwise log so the
