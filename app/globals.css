@@ -305,7 +305,13 @@ body {
     padding-inline: var(--space-3);
   }
   .hero-headline {
-    font-size: var(--text-3xl);
+    font-size: var(--text-2xl);
+    max-width: none;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+  .hero-count-box {
+    padding: var(--space-4);
   }
 }
 
