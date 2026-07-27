@@ -303,15 +303,16 @@ body {
     padding-block-start: var(--space-8);
     padding-block-end: calc(var(--space-8) * 1.4);
     padding-inline: var(--space-3);
+    overflow-x: clip;
   }
   .hero-headline {
-    font-size: var(--text-2xl);
-    max-width: none;
-    overflow-wrap: break-word;
+    font-size: clamp(20px, 5.5vw, 28px);
+    max-width: 100%;
     word-break: break-word;
   }
-  .hero-count-box {
-    padding: var(--space-4);
+  .hero-cta {
+    white-space: normal;
+    max-width: 100%;
   }
 }
 
