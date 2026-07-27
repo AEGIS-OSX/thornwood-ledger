@@ -6,12 +6,12 @@ export default async function Hero() {
   try {
     const res = await fetch(
       "https://ledger.thornwood.internal/v1/deliveries/verified-count",
-      { next: { revalidate: false } }
+      { cache: "force-cache" }
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     const count = typeof data.count === "number" ? data.count : null;
-    countDisplay = count !== null ? count.toLocaleString() : "10,000+";
+    countDisplay = count !== null ? count.toLocaleString("en-US") : "10,000+";
   } catch {
     countDisplay = "10,000+";
   }
@@ -36,7 +36,7 @@ export default async function Hero() {
             {countDisplay}
           </span>
           <span className="hero-count-label">
-            Verified deliveries processed through Thornwood Ledger
+            verified deliveries
           </span>
         </div>
       </div>
