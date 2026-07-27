@@ -1,12 +1,12 @@
 export default async function Hero() {
-  // Fetch the verified delivery count at BUILD TIME.
-  // If the internal API is unreachable (e.g. in CI), fall back to a
+  // Fetch the verified delivery count with ISR revalidation.
+  // If the internal API is unreachable, fall back to a
   // static placeholder so the build never crashes.
   let countDisplay: string;
   try {
     const res = await fetch(
       "https://ledger.thornwood.internal/v1/deliveries/verified-count",
-      { cache: "force-cache" }
+      { next: { revalidate: 3600 } }
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
@@ -31,7 +31,7 @@ export default async function Hero() {
           </a>
         </div>
 
-        <div className="hero-count-box">
+        <div className="hero-count-box" aria-label="Verified deliveries processed">
           <span className="hero-count-number">
             {countDisplay}
           </span>
