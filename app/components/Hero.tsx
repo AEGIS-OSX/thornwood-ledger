@@ -1,3 +1,4 @@
+// app/components/Hero.tsx
 export default async function Hero() {
   // Fetch the verified delivery count at BUILD TIME.
   // If the internal API is unreachable (e.g. in CI), fall back to a
@@ -6,7 +7,7 @@ export default async function Hero() {
   try {
     const res = await fetch(
       "https://ledger.thornwood.internal/v1/deliveries/verified-count",
-      { cache: "force-cache" }
+      { next: { revalidate: 86400 } }
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
