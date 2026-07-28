@@ -13,7 +13,7 @@ export function ProjectImage({ id, className }: { id: AssetKey; className?: stri
       width={asset.width}
       height={asset.height}
       className={className}
-      loading={id === "hero" ? "eager" : "lazy"}
+      loading={id === "hero" || id === "logo" ? "eager" : "lazy"}
     />
   );
 }

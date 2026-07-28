@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 export default function WalkthroughCTA() {
+  const shouldReduceMotion = useReducedMotion();
+
   const [formData, setFormData] = useState({
     name: "",
     coopName: "",
@@ -73,185 +75,151 @@ export default function WalkthroughCTA() {
     }
   };
 
+  const sectionMotionProps = shouldReduceMotion
+    ? {}
+    : {
+        initial: { opacity: 0, y: 24 },
+        whileInView: { opacity: 1, y: 0 },
+        viewport: { once: true, margin: "-80px" },
+        transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+      };
+
   return (
-    <section id="walkthrough" className="py-24 px-6 bg-stone-50">
-      <div className="max-w-2xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
-          <h2 className="text-3xl md:text-4xl font-serif text-stone-900 mb-4">
-            Book a Walkthrough
-          </h2>
-          <p className="text-stone-600 text-lg">
-            See how Thornwood Ledger can streamline your co-op&apos;s finances.
-          </p>
-        </motion.div>
+    <motion.section
+      id="walkthrough"
+      className="cta-section"
+      {...sectionMotionProps}
+    >
+      <div className="cta-inner">
+        <h2 className="cta-headline">Ready for a more efficient harvest?</h2>
+        <p className="cta-subhead">
+          Flat-rate annual licensing. No per-bushel fees or hidden member costs.
+          Purpose-built for co-op office staff, scale operators, and farmer-members.
+        </p>
 
         {formState === "success" ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-lg p-8 shadow-sm text-center"
-          >
-            <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg
-                className="w-6 h-6 text-emerald-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </div>
-            <h3 className="text-xl font-serif text-stone-900 mb-2">
-              Request Received
-            </h3>
-            <p className="text-stone-600">
-              We&apos;ll be in touch within 24 hours to schedule your walkthrough.
-            </p>
-          </motion.div>
+          <div className="cta-success" role="status">
+            Request received. We will be in touch shortly.
+          </div>
         ) : (
-          <motion.form
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+          <form
+            className="cta-form"
             onSubmit={handleSubmit}
-            className="bg-white rounded-lg p-8 shadow-sm space-y-6"
             noValidate
+            aria-label="Book a walkthrough"
           >
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-stone-700 mb-1"
-              >
-                Your Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                className={`w-full px-4 py-3 rounded-md border ${
-                  fieldErrors.name
-                    ? "border-red-400 focus:ring-red-200"
-                    : "border-stone-200 focus:ring-stone-200"
-                } focus:outline-none focus:ring-2 transition-colors`}
-                placeholder="Jane Doe"
-              />
-              {fieldErrors.name && (
-                <p className="mt-1 text-sm text-red-600">{fieldErrors.name}</p>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor="coopName"
-                className="block text-sm font-medium text-stone-700 mb-1"
-              >
-                Co-op Name
-              </label>
-              <input
-                type="text"
-                id="coopName"
-                name="coopName"
-                value={formData.coopName}
-                onChange={handleChange}
-                required
-                className={`w-full px-4 py-3 rounded-md border ${
-                  fieldErrors.coopName
-                    ? "border-red-400 focus:ring-red-200"
-                    : "border-stone-200 focus:ring-stone-200"
-                } focus:outline-none focus:ring-2 transition-colors`}
-                placeholder="Sunrise Housing Co-op"
-              />
-              {fieldErrors.coopName && (
-                <p className="mt-1 text-sm text-red-600">
-                  {fieldErrors.coopName}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-stone-700 mb-1"
-              >
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className={`w-full px-4 py-3 rounded-md border ${
-                  fieldErrors.email
-                    ? "border-red-400 focus:ring-red-200"
-                    : "border-stone-200 focus:ring-stone-200"
-                } focus:outline-none focus:ring-2 transition-colors`}
-                placeholder="jane@coop.org"
-              />
-              {fieldErrors.email && (
-                <p className="mt-1 text-sm text-red-600">{fieldErrors.email}</p>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor="phone"
-                className="block text-sm font-medium text-stone-700 mb-1"
-              >
-                Phone <span className="text-stone-400">(optional)</span>
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className={`w-full px-4 py-3 rounded-md border ${
-                  fieldErrors.phone
-                    ? "border-red-400 focus:ring-red-200"
-                    : "border-stone-200 focus:ring-stone-200"
-                } focus:outline-none focus:ring-2 transition-colors`}
-                placeholder="+1 (555) 123-4567"
-              />
-              {fieldErrors.phone && (
-                <p className="mt-1 text-sm text-red-600">{fieldErrors.phone}</p>
-              )}
-            </div>
-
             {errorMessage && (
-              <div className="p-4 bg-red-50 rounded-md">
-                <p className="text-sm text-red-700">{errorMessage}</p>
+              <div className="cta-error-banner" role="alert">
+                {errorMessage}
               </div>
             )}
 
+            <div className="cta-field">
+              <label htmlFor="name" className="cta-label">
+                Name
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                autoComplete="name"
+                required
+                value={formData.name}
+                onChange={handleChange}
+                className={`cta-input${fieldErrors.name ? " cta-input-error" : ""}`}
+                aria-describedby={fieldErrors.name ? "name-error" : undefined}
+                aria-invalid={fieldErrors.name ? "true" : undefined}
+              />
+              {fieldErrors.name && (
+                <span id="name-error" className="cta-field-error" role="alert">
+                  {fieldErrors.name}
+                </span>
+              )}
+            </div>
+
+            <div className="cta-field">
+              <label htmlFor="coopName" className="cta-label">
+                Co-op Name
+              </label>
+              <input
+                id="coopName"
+                name="coopName"
+                type="text"
+                autoComplete="organization"
+                required
+                value={formData.coopName}
+                onChange={handleChange}
+                className={`cta-input${fieldErrors.coopName ? " cta-input-error" : ""}`}
+                aria-describedby={fieldErrors.coopName ? "coopName-error" : undefined}
+                aria-invalid={fieldErrors.coopName ? "true" : undefined}
+              />
+              {fieldErrors.coopName && (
+                <span id="coopName-error" className="cta-field-error" role="alert">
+                  {fieldErrors.coopName}
+                </span>
+              )}
+            </div>
+
+            <div className="cta-field">
+              <label htmlFor="email" className="cta-label">
+                Email
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                className={`cta-input${fieldErrors.email ? " cta-input-error" : ""}`}
+                aria-describedby={fieldErrors.email ? "email-error" : undefined}
+                aria-invalid={fieldErrors.email ? "true" : undefined}
+              />
+              {fieldErrors.email && (
+                <span id="email-error" className="cta-field-error" role="alert">
+                  {fieldErrors.email}
+                </span>
+              )}
+            </div>
+
+            <div className="cta-field">
+              <label htmlFor="phone" className="cta-label">
+                Phone <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional)</span>
+              </label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                autoComplete="tel"
+                value={formData.phone}
+                onChange={handleChange}
+                className={`cta-input${fieldErrors.phone ? " cta-input-error" : ""}`}
+                aria-describedby={fieldErrors.phone ? "phone-error" : undefined}
+                aria-invalid={fieldErrors.phone ? "true" : undefined}
+              />
+              {fieldErrors.phone && (
+                <span id="phone-error" className="cta-field-error" role="alert">
+                  {fieldErrors.phone}
+                </span>
+              )}
+            </div>
+
             <button
               type="submit"
+              className="cta-submit"
               disabled={formState === "submitting"}
-              className="w-full bg-stone-900 text-white py-3 px-6 rounded-md font-medium hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              aria-busy={formState === "submitting"}
             >
-              {formState === "submitting"
-                ? "Submitting..."
-                : "Request Walkthrough"}
+              {formState === "submitting" ? "Sending..." : "Book a Walkthrough"}
             </button>
-          </motion.form>
+          </form>
         )}
+
+        <p className="cta-pricing">
+          Flat-rate annual licensing. No per-bushel fees or hidden member costs.
+        </p>
       </div>
-    </section>
+    </motion.section>
   );
 }

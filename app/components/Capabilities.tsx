@@ -30,7 +30,6 @@ export default function Capabilities() {
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
     >
       <div className="capabilities-inner">
-        <p className="label-eyebrow capabilities-eyebrow">Capabilities</p>
         <div className="capabilities-table" role="list">
           {rows.map((row, i) => (
             <motion.div
@@ -43,7 +42,7 @@ export default function Capabilities() {
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: i * 0.08 }}
             >
               <div className="capabilities-row-left">
-                <h3 className="capabilities-name heading-display">{row.name}</h3>
+                <h3 className="capabilities-name">{row.name}</h3>
                 <p className="capabilities-body">{row.body}</p>
               </div>
               <div className="capabilities-row-right">

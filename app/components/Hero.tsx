@@ -1,7 +1,6 @@
+import { HeroMotion, HeroHeadlineMotion, HeroCountMotion, HeroCtaMotion } from "@/app/components/HeroMotion";
+
 export default async function Hero() {
-  // Fetch the verified delivery count at BUILD TIME.
-  // If the internal API is unreachable (e.g. in CI), fall back to a
-  // static placeholder so the build never crashes.
   let countDisplay: string;
   try {
     const res = await fetch(
@@ -17,29 +16,32 @@ export default async function Hero() {
   }
 
   return (
-    <section className="hero-section" aria-labelledby="hero-heading">
+    <HeroMotion>
       <div className="hero-inner">
         <div className="hero-left">
-          <h1 id="hero-heading" className="hero-headline">
-            Bookkeeping clarity for growing businesses
-          </h1>
-          <p style={{ color: "var(--color-muted)", fontSize: "var(--text-lg)", lineHeight: 1.65, margin: 0, maxWidth: "52ch" }}>
-            Thornwood Ledger keeps your books accurate, your reports current, and your team focused on the work that matters.
-          </p>
-          <a href="#walkthrough" className="hero-cta">
-            Book a Walkthrough
-          </a>
+          <HeroHeadlineMotion>
+            <h1 id="hero-heading" className="hero-headline">
+              Settlement speed for regional co-ops.
+            </h1>
+          </HeroHeadlineMotion>
+          <HeroCtaMotion>
+            <a href="#walkthrough" className="hero-cta">
+              Book a Walkthrough
+            </a>
+          </HeroCtaMotion>
         </div>
 
-        <div className="hero-count-box">
-          <span className="hero-count-number">
-            {countDisplay}
-          </span>
-          <span className="hero-count-label">
-            verified deliveries
-          </span>
-        </div>
+        <HeroCountMotion>
+          <div className="hero-count-box" aria-label="Verified delivery count">
+            <span className="hero-count-number">
+              {countDisplay}
+            </span>
+            <span className="hero-count-label">
+              {countDisplay} verified deliveries recorded this harvest season.
+            </span>
+          </div>
+        </HeroCountMotion>
       </div>
-    </section>
+    </HeroMotion>
   );
 }
