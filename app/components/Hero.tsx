@@ -4,10 +4,16 @@ export default async function Hero() {
   // static placeholder so the build never crashes.
   let countDisplay: string;
   try {
-    const res = await fetch(
-      "https://ledger.thornwood.internal/v1/deliveries/verified-count",
-      { cache: "force-cache" }
-    );
+    const apiUrl = process.env.THORNWOOD_VERIFICATION_API_URL 
+      ?? 'https://zkvkbpxrxnfynqqeytke.supabase.co/rest/v1/rpc/verified_delivery_count';
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      headers['apikey'] = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    }
+    const res = await fetch(apiUrl, { 
+      next: { revalidate: 3600 },
+      headers,
+    });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     const count = typeof data.count === "number" ? data.count : null;
