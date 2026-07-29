@@ -11,6 +11,7 @@ export default function WalkthroughCTA() {
     coopName: "",
     email: "",
     phone: "",
+    message: "",
   });
   const [formState, setFormState] = useState<
     "idle" | "submitting" | "success" | "error"
@@ -18,7 +19,7 @@ export default function WalkthroughCTA() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     setFieldErrors((prev) => {
       const next = { ...prev };
@@ -42,7 +43,7 @@ export default function WalkthroughCTA() {
 
       if (res.status === 201) {
         setFormState("success");
-        setFormData({ name: "", coopName: "", email: "", phone: "" });
+        setFormData({ name: "", coopName: "", email: "", phone: "", message: "" });
         return;
       }
 
@@ -201,6 +202,28 @@ export default function WalkthroughCTA() {
               {fieldErrors.phone && (
                 <span id="phone-error" className="cta-field-error" role="alert">
                   {fieldErrors.phone}
+                </span>
+              )}
+            </div>
+
+            <div className="cta-field">
+              <label htmlFor="message" className="cta-label">
+                Message <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional)</span>
+              </label>
+              <textarea
+                id="message"
+                name="message"
+                rows={4}
+                value={formData.message}
+                onChange={handleChange}
+                className="cta-input"
+                style={{ resize: "vertical" }}
+                aria-describedby={fieldErrors.message ? "message-error" : undefined}
+                aria-invalid={fieldErrors.message ? "true" : undefined}
+              />
+              {fieldErrors.message && (
+                <span id="message-error" className="cta-field-error" role="alert">
+                  {fieldErrors.message}
                 </span>
               )}
             </div>
