@@ -1,14 +1,8 @@
-import { NextResponse } from "next/server";
-
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const sha = process.env.VERCEL_GIT_COMMIT_SHA
-    || process.env.GITHUB_SHA
-    || "unknown";
-
-  return NextResponse.json({
-    sha,
+  return Response.json({
+    sha: process.env.VERCEL_GIT_COMMIT_SHA ?? 'unknown',
     deployedAt: new Date().toISOString(),
   });
 }

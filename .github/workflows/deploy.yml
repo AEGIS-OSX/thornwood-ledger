@@ -9,29 +9,20 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Trigger Vercel Deploy
-        run: |
-          if [ -z "${VERCEL_DEPLOY_HOOK_URL}" ]; then
-            echo "VERCEL_DEPLOY_HOOK_URL is not set. Skipping deploy trigger."
-            exit 1
-          fi
-          curl -X POST "${VERCEL_DEPLOY_HOOK_URL}"
+        run: curl -X POST "$VERCEL_DEPLOY_HOOK_URL"
         env:
           VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
 
       - name: Wait for deploy to propagate
-        run: sleep 30
+        run: sleep 60
 
-      - name: Verify live deployment
+      - name: Verify deployment SHA
         run: |
-          DEPLOYED_SHA=$(curl -sSf "${VERCEL_LIVE_URL}/api/version" | jq -r '.sha')
-          if [ "${DEPLOYED_SHA}" != "${GITHUB_SHA}" ]; then
-            echo "SHA mismatch: expected ${GITHUB_SHA}, got ${DEPLOYED_SHA}"
+          LIVE_SHA=$(curl -s "${LIVE_URL}/api/version" | jq -r '.sha')
+          if [ "$LIVE_SHA" != "$GITHUB_SHA" ]; then
+            echo "SHA mismatch: expected $GITHUB_SHA, got $LIVE_SHA"
             exit 1
           fi
-          echo "Deploy verified: SHA ${DEPLOYED_SHA} matches ${GITHUB_SHA}"
         env:
-          VERCEL_LIVE_URL: ${{ secrets.VERCEL_LIVE_URL }}
+          LIVE_URL: ${{ secrets.LIVE_URL }}
