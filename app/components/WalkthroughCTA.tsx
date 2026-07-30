@@ -28,7 +28,6 @@ export default function WalkthroughCTA() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
     setFormState("submitting");
     setFieldErrors({});
     setErrorMessage("");
@@ -93,7 +92,9 @@ export default function WalkthroughCTA() {
       <div className="cta-inner">
         <h2 className="cta-headline">Ready for a more efficient harvest?</h2>
         <p className="cta-subhead">
-          Thornwood Ledger handles settlement calculations, delivery records, and co-op reporting — so your team focuses on the field, not the spreadsheet.
+          Thornwood Ledger handles settlement calculations, delivery records,
+          and co-op reporting — so your team focuses on the field, not the
+          spreadsheet.
         </p>
 
         {formState === "success" ? (
