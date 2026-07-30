@@ -63,7 +63,7 @@ export default function Hero() {
   };
 
   const countDisplay =
-    count !== null ? count.toLocaleString("en-US") : "10,000+";
+    count !== null ? count.toLocaleString("en-US") : "";
 
   return (
     <HeroMotion>
@@ -85,6 +85,7 @@ export default function Hero() {
                 setModalOpen(true);
               }}
               className="hero-cta focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
+              style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-accent-ink)' }}
               role="button"
               aria-label="Book a Walkthrough"
             >
