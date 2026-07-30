@@ -52,4 +52,3 @@ export function HeroCtaMotion({ children }: { children: ReactNode }) {
       {children}
     </motion.div>
   );
-}
