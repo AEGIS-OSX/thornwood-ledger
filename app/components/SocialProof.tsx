@@ -30,7 +30,7 @@ export default function SocialProof() {
       </div>
       <motion.div className="proof-content-col" {...contentMotionProps}>
         <span className="proof-quote-mark" aria-hidden="true">&ldquo;</span>
-        <figure className="proof-quote">
+        <figure className="pull-quote">
           <blockquote className="proof-quote-text">
             Thornwood Ledger cut our settlement processing time by three days. Our members get paid faster, and our office staff isn&apos;t buried in paperwork during the October rush.
           </blockquote>
