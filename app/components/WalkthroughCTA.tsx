@@ -93,8 +93,7 @@ export default function WalkthroughCTA() {
       <div className="cta-inner">
         <h2 className="cta-headline">Ready for a more efficient harvest?</h2>
         <p className="cta-subhead">
-          Flat-rate annual licensing. No per-bushel fees or hidden member costs.
-          Purpose-built for co-op office staff, scale operators, and farmer-members.
+          Thornwood Ledger handles settlement calculations, delivery records, and co-op reporting — so your team focuses on the field, not the spreadsheet.
         </p>
 
         {formState === "success" ? (
@@ -211,7 +210,7 @@ export default function WalkthroughCTA() {
               disabled={formState === "submitting"}
               aria-busy={formState === "submitting"}
             >
-              {formState === "submitting" ? "Sending..." : "Book a Walkthrough"}
+              {formState === "submitting" ? "Sending..." : "Request early access"}
             </button>
           </form>
         )}
