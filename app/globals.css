@@ -20,8 +20,8 @@
   --color-focus:        oklch(58.3% 0.118 74.8);   /* Settlement Amber — focus ring */
 
   /* Typography tokens — Tiempos Headline / Sohne / Sohne Mono */
-  --font-display: 'Tiempos Headline', 'Instrument Serif', Georgia, serif;
-  --font-body:    'Sohne', 'Geist Sans', system-ui, sans-serif;
+  --font-display: 'Tiempos Headline', Georgia, serif;
+  --font-body:    'Sohne', system-ui, sans-serif;
   --font-mono:    'Sohne Mono', 'Geist Mono', 'Courier New', monospace;
 
   /* Type scale */
