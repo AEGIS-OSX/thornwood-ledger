@@ -44,7 +44,7 @@ export default function WalkthroughCTA() {
   const [fieldErrors, setFieldErrors] = useState({} as Record<string, string>);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<InputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     setFieldErrors((prev) => {
       const next = { ...prev };
