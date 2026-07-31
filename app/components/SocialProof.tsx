@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { ProjectImage } from "@/app/components/ProjectImage";
 
 export default function SocialProof() {
-  const sectionRef = useRef(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 
 export default function WalkthroughCTA() {
-  const sectionRef = useRef(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
@@ -41,7 +41,7 @@ export default function WalkthroughCTA() {
   const [formState, setFormState] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
-  const [fieldErrors, setFieldErrors] = useState({} as Record<string, string>);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
