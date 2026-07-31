@@ -1,10 +1,36 @@
 "use client";
 
-import { useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
 
 export default function WalkthroughCTA() {
-  const shouldReduceMotion = useReducedMotion();
+  const sectionRef = useRef(null);
+  const [visible, setVisible] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !sectionRef.current) return;
+    const el = sectionRef.current;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -15,10 +41,10 @@ export default function WalkthroughCTA() {
   const [formState, setFormState] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [fieldErrors, setFieldErrors] = useState({} as Record<string, string>);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     setFieldErrors((prev) => {
       const next = { ...prev };
@@ -75,20 +101,20 @@ export default function WalkthroughCTA() {
     }
   };
 
-  const sectionMotionProps = shouldReduceMotion
-    ? {}
+  const sectionStyle = prefersReducedMotion
+    ? { opacity: 1, transform: "none" }
     : {
-        initial: { opacity: 0, y: 24 },
-        whileInView: { opacity: 1, y: 0 },
-        viewport: { once: true, margin: "-80px" },
-        transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0px)" : "translateY(24px)",
+        transition: "opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
       };
 
   return (
-    <motion.section
+    <section
       id="walkthrough"
       className="cta-section"
-      {...sectionMotionProps}
+      ref={sectionRef}
+      style={sectionStyle}
     >
       <div className="cta-inner">
         <h2 className="cta-headline">Ready for a more efficient harvest?</h2>
@@ -220,6 +246,6 @@ export default function WalkthroughCTA() {
           Flat-rate annual licensing. No per-bushel fees or hidden member costs.
         </p>
       </div>
-    </motion.section>
+    </section>
   );
 }

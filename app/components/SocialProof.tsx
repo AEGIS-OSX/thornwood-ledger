@@ -1,34 +1,64 @@
 "use client";
-import { motion, useReducedMotion } from "framer-motion";
+
+import { useState, useEffect, useRef } from "react";
 import { ProjectImage } from "@/app/components/ProjectImage";
 
 export default function SocialProof() {
-  const shouldReduceMotion = useReducedMotion();
+  const sectionRef = useRef(null);
+  const [visible, setVisible] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
-  const sectionMotionProps = shouldReduceMotion
-    ? {}
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !sectionRef.current) return;
+    const el = sectionRef.current;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const sectionStyle = prefersReducedMotion
+    ? { opacity: 1, transform: "none" }
     : {
-        initial: { opacity: 0 },
-        whileInView: { opacity: 1 },
-        viewport: { once: true, margin: "-80px" },
-        transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+        opacity: visible ? 1 : 0,
+        transition: "opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
       };
 
-  const contentMotionProps = shouldReduceMotion
-    ? {}
+  const contentStyle = prefersReducedMotion
+    ? { opacity: 1, transform: "none" }
     : {
-        initial: { opacity: 0, x: 24 },
-        whileInView: { opacity: 1, x: 0 },
-        viewport: { once: true, margin: "-80px" },
-        transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.1 },
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateX(0px)" : "translateX(24px)",
+        transition: "opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s",
       };
 
   return (
-    <motion.section id="proof" className="proof-section" {...sectionMotionProps}>
+    <section
+      id="proof"
+      className="proof-section"
+      ref={sectionRef}
+      style={sectionStyle}
+    >
       <div className="proof-image-col">
         <ProjectImage id="social_proof" className="proof-image" />
       </div>
-      <motion.div className="proof-content-col" {...contentMotionProps}>
+      <div className="proof-content-col" style={contentStyle}>
         <span className="proof-quote-mark" aria-hidden="true">&ldquo;</span>
         <figure className="proof-quote">
           <blockquote className="proof-quote-text">
@@ -41,7 +71,7 @@ export default function SocialProof() {
         <p className="proof-support">
           We provide on-site training for scale operators and office staff. Phone support is available 24/7 during harvest.
         </p>
-      </motion.div>
-    </motion.section>
+      </div>
+    </section>
   );
 }
