@@ -31,9 +31,9 @@ export default function SocialProof() {
       <motion.div className="proof-content-col" {...contentMotionProps}>
         <span className="proof-quote-mark" aria-hidden="true">&ldquo;</span>
         <figure className="proof-quote">
-          <blockquote className="proof-quote-text">
+          <p className="proof-quote-text">
             Thornwood Ledger cut our settlement processing time by three days. Our members get paid faster, and our office staff isn&apos;t buried in paperwork during the October rush.
-          </blockquote>
+          </p>
           <figcaption className="proof-attribution">
             Robert Miller, General Manager, Tri-County Grain Co-op
           </figcaption>
