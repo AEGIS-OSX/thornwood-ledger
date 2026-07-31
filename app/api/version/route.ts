@@ -1,17 +1,27 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 
-export const dynamic = 'force-dynamic';
+// This endpoint backs the post-merge deploy-verification check
+// (garrison / aegis-gate polls it to confirm the live deployment
+// matches the merged commit SHA). It must never be statically
+// optimized -- force-dynamic guarantees a fresh read on every hit
+// instead of a build-time-frozen value baked into the prerendered
+// output.
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function GET() {
-  try {
-    return NextResponse.json({
-      sha: process.env.VERCEL_GIT_COMMIT_SHA || '82443f6',
-      deployedAt: new Date().toISOString(),
-    });
-  } catch {
-    return NextResponse.json(
-      { sha: '82443f6', error: 'version-unavailable' },
-      { status: 200 }
-    );
-  }
+  const sha =
+    process.env.VERCEL_GIT_COMMIT_SHA ??
+    process.env.GIT_COMMIT_SHA ??
+    process.env.NEXT_PUBLIC_COMMIT_SHA ??
+    "unknown";
+
+  return NextResponse.json(
+    {
+      sha,
+      status: "ok",
+      checkedAt: new Date().toISOString(),
+    },
+    { status: 200 }
+  );
 }
