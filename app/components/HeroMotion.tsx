@@ -1,58 +1,132 @@
 "use client";
-import { motion, useReducedMotion } from "framer-motion";
 
-const ease = [0.16, 1, 0.3, 1];
+import { useState, useEffect } from "react";
 
-export function HeroMotion({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  const reduce = useReducedMotion();
+function useReducedMotion(): boolean {
+  const [prefersReduced, setPrefersReduced] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setPrefersReduced(mql.matches);
+
+    update();
+    mql.addEventListener("change", update);
+    return () => mql.removeEventListener("change", update);
+  }, []);
+
+  return prefersReduced;
+}
+
+const transitionStyle =
+  "opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1)";
+
+export function HeroMotion({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const [mounted, setMounted] = useState(false);
+  const reduced = useReducedMotion();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const style: React.CSSProperties = reduced
+    ? { opacity: 1, transform: "none", transition: "none" }
+    : {
+        opacity: mounted ? 1 : 0,
+        transform: mounted ? "none" : "translateY(18px)",
+        transition: transitionStyle,
+        transitionDelay: "0ms",
+      };
+
   return (
-    <motion.div
-      initial={reduce ? false : { opacity: 0, y: 18 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.28, ease }}
-      className={className}
-    >
+    <div className={className} style={style}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
-export function HeroHeadlineMotion({ children }: { children: React.ReactNode }) {
-  const reduce = useReducedMotion();
+export function HeroHeadlineMotion({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [mounted, setMounted] = useState(false);
+  const reduced = useReducedMotion();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const style: React.CSSProperties = reduced
+    ? { opacity: 1, transform: "none", transition: "none" }
+    : {
+        opacity: mounted ? 1 : 0,
+        transform: mounted ? "none" : "translateY(14px)",
+        transition: transitionStyle,
+        transitionDelay: "60ms",
+      };
+
   return (
-    <motion.h1
-      initial={reduce ? false : { opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.28, ease, delay: 0.06 }}
+    <h1
       className="font-display text-5xl font-semibold tracking-tight text-[var(--color-ink)] lg:text-6xl"
+      style={style}
     >
       {children}
-    </motion.h1>
+    </h1>
   );
 }
 
-export function HeroCountMotion({ children }: { children: React.ReactNode }) {
-  const reduce = useReducedMotion();
-  return (
-    <motion.div
-      initial={reduce ? false : { opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.28, ease, delay: 0.12 }}
-    >
-      {children}
-    </motion.div>
-  );
+export function HeroCountMotion({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [mounted, setMounted] = useState(false);
+  const reduced = useReducedMotion();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const style: React.CSSProperties = reduced
+    ? { opacity: 1, transform: "none", transition: "none" }
+    : {
+        opacity: mounted ? 1 : 0,
+        transform: mounted ? "none" : "scale(0.96)",
+        transition: transitionStyle,
+        transitionDelay: "120ms",
+      };
+
+  return <div style={style}>{children}</div>;
 }
 
-export function HeroCtaMotion({ children }: { children: React.ReactNode }) {
-  const reduce = useReducedMotion();
-  return (
-    <motion.div
-      initial={reduce ? false : { opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.28, ease, delay: 0.18 }}
-    >
-      {children}
-    </motion.div>
-  );
+export function HeroCtaMotion({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [mounted, setMounted] = useState(false);
+  const reduced = useReducedMotion();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const style: React.CSSProperties = reduced
+    ? { opacity: 1, transform: "none", transition: "none" }
+    : {
+        opacity: mounted ? 1 : 0,
+        transform: mounted ? "none" : "translateY(8px)",
+        transition: transitionStyle,
+        transitionDelay: "180ms",
+      };
+
+  return <div style={style}>{children}</div>;
 }
