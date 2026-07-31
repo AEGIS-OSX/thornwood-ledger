@@ -1,203 +1,268 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import {
-  HeroMotion,
-  HeroHeadlineMotion,
-  HeroCountMotion,
-  HeroCtaMotion,
-} from "@/app/components/HeroMotion";
+import { useState, useEffect, useRef } from 'react';
+
+interface DeliveryStats {
+  verifiedCount: number;
+}
+
+interface BookingFormData {
+  name: string;
+  email: string;
+  preferredDate: string;
+}
 
 export default function Hero() {
-  const [count, setCount] = useState<number | null>(null);
+  const [stats, setStats] = useState<DeliveryStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [modalOpen, setModalOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    preferredTime: "",
+  const [formData, setFormData] = useState<BookingFormData>({
+    name: '',
+    email: '',
+    preferredDate: '',
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitMessage, setSubmitMessage] = useState('');
+
+  const modalRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const openButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    fetch("/api/delivery/stats")
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        if (typeof data.count === "number") {
-          setCount(data.count);
+    let cancelled = false;
+    async function fetchStats() {
+      try {
+        const res = await fetch('/api/delivery/stats');
+        if (!res.ok) throw new Error('Failed to load stats');
+        const data = await res.json();
+        if (!cancelled) {
+          setStats(data);
+          setError(null);
         }
-      })
-      .catch(() => {
-        // Leave count as null on error
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      } catch (e) {
+        if (!cancelled) {
+          setError('Unable to load verification count');
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    fetchStats();
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setModalOpen(false);
-    };
-    if (modalOpen) {
-      document.addEventListener("keydown", handleEscape);
-      return () => document.removeEventListener("keydown", handleEscape);
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape' && modalOpen) {
+        setModalOpen(false);
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [modalOpen]);
+
+  useEffect(() => {
+    if (modalOpen && closeButtonRef.current) {
+      closeButtonRef.current.focus();
+    }
+    if (!modalOpen && openButtonRef.current) {
+      openButtonRef.current.focus();
     }
   }, [modalOpen]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  function openModal() {
+    setSubmitStatus('idle');
+    setSubmitMessage('');
+    setFormData({ name: '', email: '', preferredDate: '' });
+    setModalOpen(true);
+  }
+
+  function closeModal() {
+    setModalOpen(false);
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setSubmitting(true);
+    setSubmitStatus('idle');
+    setSubmitMessage('');
+
     try {
-      await fetch("/api/booking", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-    } catch {
-      // Silently handle error
-    }
-    setModalOpen(false);
-    setFormData({ name: "", email: "", preferredTime: "" });
-  };
 
-  const countDisplay =
-    count !== null ? count.toLocaleString("en-US") : "10,000+";
+      if (res.ok) {
+        setSubmitStatus('success');
+        setSubmitMessage('Your walkthrough is booked! We will be in touch soon.');
+        setFormData({ name: '', email: '', preferredDate: '' });
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setSubmitStatus('error');
+        setSubmitMessage(data.message || 'Booking failed. Please try again.');
+      }
+    } catch {
+      setSubmitStatus('error');
+      setSubmitMessage('Network error. Please check your connection and try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
-    <HeroMotion>
-      <div className="hero-inner">
-        <div className="hero-left w-full !max-w-full">
-          <HeroHeadlineMotion>
-            <h1
-              id="hero-heading"
-              className="hero-headline text-2xl sm:text-4xl lg:text-5xl !max-w-full break-words"
-            >
-              Settlement speed for regional co-ops.
-            </h1>
-          </HeroHeadlineMotion>
-          <HeroCtaMotion>
-            <a
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                setModalOpen(true);
-              }}
-              className="hero-cta focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
-              role="button"
-              aria-label="Book a Walkthrough"
+    <section className="relative w-full bg-white">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32">
+        <div className="max-w-3xl">
+          <h1 className="text-2xl sm:text-4xl lg:text-6xl font-bold tracking-tight text-gray-900">
+            Thornwood Ledger
+          </h1>
+          <p className="mt-4 text-base sm:text-lg text-gray-600">
+            Verified delivery tracking for modern supply chains.
+          </p>
+
+          <div className="mt-6">
+            {loading && (
+              <div className="h-6 w-32 bg-gray-200 rounded animate-pulse" aria-label="Loading verification count" />
+            )}
+            {!loading && error && (
+              <p className="text-sm text-red-600">{error}</p>
+            )}
+            {!loading && stats && (
+              <p className="text-sm font-medium text-gray-700">
+                {stats.verifiedCount.toLocaleString()} verified deliveries
+              </p>
+            )}
+          </div>
+
+          <div className="mt-8">
+            <button
+              ref={openButtonRef}
+              type="button"
+              onClick={openModal}
+              className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-5 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
               Book a Walkthrough
-            </a>
-          </HeroCtaMotion>
-        </div>
-
-        <HeroCountMotion>
-          <div
-            className="hero-count-box"
-            aria-label="Verified delivery count"
-          >
-            <span className="hero-count-number">{countDisplay}</span>
-            <span className="hero-count-label">
-              {countDisplay} verified deliveries recorded this harvest season.
-            </span>
+            </button>
           </div>
-        </HeroCountMotion>
+        </div>
       </div>
 
       {modalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          onClick={() => setModalOpen(false)}
           role="dialog"
           aria-modal="true"
           aria-labelledby="booking-modal-title"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeModal();
+          }}
         >
           <div
-            className="bg-white rounded-lg shadow-lg max-w-md w-full p-6"
-            onClick={(e) => e.stopPropagation()}
+            ref={modalRef}
+            className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
           >
-            <h2
-              id="booking-modal-title"
-              className="text-xl font-semibold text-gray-900 mb-4"
-            >
-              Book a Walkthrough
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label
-                  htmlFor="booking-name"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Name
-                </label>
-                <input
-                  id="booking-name"
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="booking-email"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Email
-                </label>
-                <input
-                  id="booking-email"
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="booking-time"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Preferred Time
-                </label>
-                <input
-                  id="booking-time"
-                  type="text"
-                  required
-                  value={formData.preferredTime}
-                  onChange={(e) =>
-                    setFormData({ ...formData, preferredTime: e.target.value })
-                  }
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
-                />
-              </div>
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
-                >
-                  Submit
-                </button>
+            <div className="flex items-center justify-between">
+              <h2 id="booking-modal-title" className="text-lg font-semibold text-gray-900">
+                Book a Walkthrough
+              </h2>
+              <button
+                ref={closeButtonRef}
+                type="button"
+                onClick={closeModal}
+                className="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                aria-label="Close"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {submitStatus === 'success' ? (
+              <div className="mt-4 rounded-md bg-green-50 p-4">
+                <p className="text-sm font-medium text-green-800">{submitMessage}</p>
                 <button
                   type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
+                  onClick={closeModal}
+                  className="mt-3 inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                 >
-                  Cancel
+                  Close
                 </button>
               </div>
-            </form>
+            ) : (
+              <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+                <div>
+                  <label htmlFor="booking-name" className="block text-sm font-medium text-gray-700">
+                    Name
+                  </label>
+                  <input
+                    id="booking-name"
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="booking-email" className="block text-sm font-medium text-gray-700">
+                    Email
+                  </label>
+                  <input
+                    id="booking-email"
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="booking-date" className="block text-sm font-medium text-gray-700">
+                    Preferred Date
+                  </label>
+                  <input
+                    id="booking-date"
+                    type="date"
+                    required
+                    value={formData.preferredDate}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, preferredDate: e.target.value }))}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                </div>
+
+                {submitStatus === 'error' && (
+                  <div className="rounded-md bg-red-50 p-3">
+                    <p className="text-sm text-red-700">{submitMessage}</p>
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="inline-flex flex-1 justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="inline-flex flex-1 justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {submitting ? 'Booking…' : 'Book Walkthrough'}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}
-    </HeroMotion>
+    </section>
   );
 }
