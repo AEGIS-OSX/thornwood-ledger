@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 
 interface DeliveryStats {
-  verifiedCount: number;
+  count: number;
 }
 
 interface BookingFormData {
@@ -131,7 +131,7 @@ export default function Hero() {
             )}
             {!loading && stats && (
               <p>
-                {stats.verifiedCount.toLocaleString()} verified deliveries recorded this harvest season.
+                {stats.count.toLocaleString()} verified deliveries recorded this harvest season.
               </p>
             )}
           </div>
