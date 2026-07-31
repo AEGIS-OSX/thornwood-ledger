@@ -119,13 +119,10 @@ export default function Hero() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32">
         <div className="max-w-3xl">
           <h1 className="text-2xl sm:text-4xl lg:text-6xl font-bold tracking-tight text-gray-900">
-            Thornwood Ledger
+            Settlement speed for regional co-ops.
           </h1>
-          <p className="mt-4 text-base sm:text-lg text-gray-600">
-            Verified delivery tracking for modern supply chains.
-          </p>
 
-          <div className="mt-6">
+          <div className="mt-4 text-base sm:text-lg text-gray-600">
             {loading && (
               <div className="h-6 w-32 bg-gray-200 rounded animate-pulse" aria-label="Loading verification count" />
             )}
@@ -133,8 +130,8 @@ export default function Hero() {
               <p className="text-sm text-red-600">{error}</p>
             )}
             {!loading && stats && (
-              <p className="text-sm font-medium text-gray-700">
-                {stats.verifiedCount.toLocaleString()} verified deliveries
+              <p>
+                {stats.verifiedCount.toLocaleString()} verified deliveries recorded this harvest season.
               </p>
             )}
           </div>
@@ -144,7 +141,8 @@ export default function Hero() {
               ref={openButtonRef}
               type="button"
               onClick={openModal}
-              className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-5 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="inline-flex items-center justify-center rounded-md px-5 py-3 text-base font-medium shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2"
+              style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-accent-ink)' }}
             >
               Book a Walkthrough
             </button>
