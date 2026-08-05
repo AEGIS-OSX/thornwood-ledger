@@ -1,69 +1,84 @@
-import {
-  HeroMotion,
-  HeroHeadlineMotion,
-  HeroCountMotion,
-  HeroCtaMotion,
-} from "./HeroMotion";
+'use client';
 
-export default async function Hero() {
-  const url = "https://ledger.thornwood.internal/v1/deliveries/verified-count";
+import { useEffect, useState } from 'react';
+import HeroMotion from './HeroMotion';
 
-  const headers: Record<string, string> = {};
-  if (process.env.THORNWOOD_API_KEY) {
-    headers.Authorization = `Bearer ${process.env.THORNWOOD_API_KEY}`;
-  }
+// Live delivery count is fetched at RUNTIME in the browser, never at build.
+// This is mandatory: next.config.js sets output:'export' (static export),
+// which has no request-time render phase. Any server-side/build-time fetch
+// to the internal-only ledger host resolves during `next build`, where the
+// CI sandbox has no network route -> the build throws. A client fetch keeps
+// the count live (the page is served inside the internal network that can
+// reach the host) while leaving the build free of network I/O.
 
-  let response;
-  try {
-    response = await fetch(url, { cache: "no-store", headers });
-    if (!response.ok) {
-      throw new Error("Criterion 1 FAIL: fetch failed");
+const STATS_ENDPOINT =
+  process.env.NEXT_PUBLIC_LEDGER_STATS_URL ?? '/api/delivery/stats';
+
+type CountState =
+  | { status: 'loading' }
+  | { status: 'ready'; count: number }
+  | { status: 'error' };
+
+function formatCount(n: number): string {
+  return new Intl.NumberFormat('en-US').format(n);
+}
+
+export default function Hero() {
+  const [state, setState] = useState<CountState>({ status: 'loading' });
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function load() {
+      try {
+        const res = await fetch(STATS_ENDPOINT, {
+          signal: controller.signal,
+          cache: 'no-store',
+        });
+        if (!res.ok) {
+          throw new Error(`stats endpoint returned ${res.status}`);
+        }
+        const data: unknown = await res.json();
+        const count =
+          typeof (data as { count?: unknown })?.count === 'number'
+            ? (data as { count: number }).count
+            : Number.NaN;
+        if (!Number.isFinite(count)) {
+          throw new Error('stats endpoint returned a non-numeric count');
+        }
+        setState({ status: 'ready', count });
+      } catch (err) {
+        if ((err as { name?: string })?.name === 'AbortError') return;
+        setState({ status: 'error' });
+      }
     }
-  } catch {
-    throw new Error("Criterion 1 FAIL: fetch failed");
-  }
 
-  let data: unknown;
-  try {
-    data = await response.json();
-  } catch {
-    throw new Error("Criterion 1 FAIL: unexpected response shape");
-  }
+    void load();
+    return () => controller.abort();
+  }, []);
 
-  let count: number;
-  if (typeof data === "number") {
-    count = data;
-  } else if (
-    data !== null &&
-    typeof data === "object" &&
-    "count" in data &&
-    typeof (data as Record<string, unknown>).count === "number"
-  ) {
-    count = (data as { count: number }).count;
+  let countLabel: string;
+  if (state.status === 'ready') {
+    countLabel = formatCount(state.count);
+  } else if (state.status === 'error') {
+    countLabel = '\u2014'; // em dash placeholder on failure
   } else {
-    throw new Error("Criterion 1 FAIL: unexpected response shape");
+    countLabel = '\u2026'; // ellipsis while loading
   }
-
-  const formattedCount = count.toLocaleString();
 
   return (
     <HeroMotion>
-      <HeroHeadlineMotion>
-        <h1 className="hero-headline">Settlement speed for regional co-ops.</h1>
-      </HeroHeadlineMotion>
-      <HeroCountMotion>
-        <div className="hero-count">
-          <span className="hero-count-number">{formattedCount}</span>
-          <span className="hero-count-label">
-            verified deliveries recorded this harvest season.
-          </span>
-        </div>
-      </HeroCountMotion>
-      <HeroCtaMotion>
-        <a href="#walkthrough" className="hero-cta">
-          Book a Walkthrough
-        </a>
-      </HeroCtaMotion>
+      <p className="hero-count">
+        <span
+          className="hero-count-number"
+          aria-live="polite"
+          aria-busy={state.status === 'loading'}
+          data-status={state.status}
+        >
+          {countLabel}
+        </span>{' '}
+        <span className="hero-count-label">deliveries logged</span>
+      </p>
     </HeroMotion>
   );
 }
