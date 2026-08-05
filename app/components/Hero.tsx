@@ -1,3 +1,10 @@
+import {
+  HeroMotion,
+  HeroHeadlineMotion,
+  HeroCountMotion,
+  HeroCtaMotion,
+} from "./HeroMotion";
+
 export default async function Hero() {
   const url = "https://ledger.thornwood.internal/v1/deliveries/verified-count";
 
@@ -40,17 +47,23 @@ export default async function Hero() {
   const formattedCount = count.toLocaleString();
 
   return (
-    <section className="hero">
-      <h1 className="hero-headline">Settlement speed for regional co-ops.</h1>
-      <div className="hero-count">
-        <span className="hero-count-number">{formattedCount}</span>
-        <span className="hero-count-label">
-          verified deliveries recorded this harvest season.
-        </span>
-      </div>
-      <a href="#walkthrough" className="hero-cta">
-        Book a Walkthrough
-      </a>
-    </section>
+    <HeroMotion>
+      <HeroHeadlineMotion>
+        <h1 className="hero-headline">Settlement speed for regional co-ops.</h1>
+      </HeroHeadlineMotion>
+      <HeroCountMotion>
+        <div className="hero-count">
+          <span className="hero-count-number">{formattedCount}</span>
+          <span className="hero-count-label">
+            verified deliveries recorded this harvest season.
+          </span>
+        </div>
+      </HeroCountMotion>
+      <HeroCtaMotion>
+        <a href="#walkthrough" className="hero-cta">
+          Book a Walkthrough
+        </a>
+      </HeroCtaMotion>
+    </HeroMotion>
   );
 }
