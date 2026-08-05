@@ -1,56 +1,50 @@
 "use client";
-import { motion, useReducedMotion } from "framer-motion";
 
-const ease = [0.16, 1, 0.3, 1];
+import { motion } from "framer-motion";
+import { ReactNode } from "react";
 
-export function HeroMotion({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  const reduce = useReducedMotion();
+export function HeroMotion({ children }: { children: ReactNode }) {
+  return (
+    <motion.section
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
+      {children}
+    </motion.section>
+  );
+}
+
+export function HeroHeadlineMotion({ children }: { children: ReactNode }) {
   return (
     <motion.div
-      initial={reduce ? false : { opacity: 0, y: 18 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.28, ease }}
-      className={className}
+      transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
     >
       {children}
     </motion.div>
   );
 }
 
-export function HeroHeadlineMotion({ children }: { children: React.ReactNode }) {
-  const reduce = useReducedMotion();
-  return (
-    <motion.h1
-      initial={reduce ? false : { opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.28, ease, delay: 0.06 }}
-      className="font-display text-5xl font-semibold tracking-tight text-[var(--color-ink)] lg:text-6xl"
-    >
-      {children}
-    </motion.h1>
-  );
-}
-
-export function HeroCountMotion({ children }: { children: React.ReactNode }) {
-  const reduce = useReducedMotion();
+export function HeroCountMotion({ children }: { children: ReactNode }) {
   return (
     <motion.div
-      initial={reduce ? false : { opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.28, ease, delay: 0.12 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
     >
       {children}
     </motion.div>
   );
 }
 
-export function HeroCtaMotion({ children }: { children: React.ReactNode }) {
-  const reduce = useReducedMotion();
+export function HeroCtaMotion({ children }: { children: ReactNode }) {
   return (
     <motion.div
-      initial={reduce ? false : { opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.28, ease, delay: 0.18 }}
+      transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
     >
       {children}
     </motion.div>
