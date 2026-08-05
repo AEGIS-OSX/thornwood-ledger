@@ -1,35 +1,18 @@
-import {
-  HeroMotion,
-  HeroHeadlineMotion,
-  HeroCountMotion,
-  HeroCtaMotion,
-} from "./HeroMotion";
-
-async function fetchVerifiedCount(): Promise<number> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
-    ? process.env.NEXT_PUBLIC_SITE_URL
-    : process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000";
-
-  const url = new URL("/api/delivery/stats", baseUrl).toString();
+export default async function Hero() {
+  const url = "https://ledger.thornwood.internal/v1/deliveries/verified-count";
 
   const headers: Record<string, string> = {};
   if (process.env.THORNWOOD_API_KEY) {
     headers.Authorization = `Bearer ${process.env.THORNWOOD_API_KEY}`;
   }
 
-  let response: Response;
+  let response;
   try {
-    response = await fetch(url, {
-      cache: "force-cache",
-      headers,
-    });
+    response = await fetch(url, { cache: "no-store", headers });
+    if (!response.ok) {
+      throw new Error("Criterion 1 FAIL: fetch failed");
+    }
   } catch {
-    throw new Error("Criterion 1 FAIL: fetch failed");
-  }
-
-  if (!response.ok) {
     throw new Error("Criterion 1 FAIL: fetch failed");
   }
 
@@ -54,27 +37,20 @@ async function fetchVerifiedCount(): Promise<number> {
     throw new Error("Criterion 1 FAIL: unexpected response shape");
   }
 
-  return count;
-}
-
-export default async function Hero() {
-  const count = await fetchVerifiedCount();
   const formattedCount = count.toLocaleString();
 
   return (
-    <HeroMotion>
-      <HeroHeadlineMotion>
-        <h1>Settlement speed for regional co-ops.</h1>
-      </HeroHeadlineMotion>
-      <HeroCountMotion>
+    <section className="hero">
+      <h1 className="hero-headline">Settlement speed for regional co-ops.</h1>
+      <div className="hero-count">
         <span className="hero-count-number">{formattedCount}</span>
         <span className="hero-count-label">
           verified deliveries recorded this harvest season.
         </span>
-      </HeroCountMotion>
-      <HeroCtaMotion>
-        <a href="#walkthrough">Book a Walkthrough</a>
-      </HeroCtaMotion>
-    </HeroMotion>
+      </div>
+      <a href="#walkthrough" className="hero-cta">
+        Book a Walkthrough
+      </a>
+    </section>
   );
 }
